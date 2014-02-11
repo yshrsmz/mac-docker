@@ -3,8 +3,8 @@ MAINTAINER yshrsmz <the.phantom.bane@gmail.com>
 
 #VOLUME ["/var/volume1", "/var/volume2"]
 
-# install gcc, make, git
-RUN yum install -y gcc make git
+# install needed modules
+RUN yum install -y gcc make git zlib zlib-devel readline readline-devel openssl openssl-devel curl curl-devel manpath
 
 # install oracle jdk 1.7
 RUN wget --no-check-certificate --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com" -O jdk-linux-x64.rpm "http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-linux-x64.rpm"
@@ -12,7 +12,7 @@ RUN rpm -Uvh jdk-linux-x64.rpm
 RUN rm jdk-linux-x64.rpm
 ENV JAVA_HOME /usr/java/default
 
-# --- configure via chef ----------------------
+# --- configure via chef? ----------------------
 # add tomcat user
 #RUN useradd -s /bin/bash cy_tomcat
 
@@ -29,23 +29,14 @@ ENV JAVA_HOME /usr/java/default
 
 ### 
 # setup ruby
-# should use this? https://github.com/yss44/docker_rails_base
+# https://github.com/yss44/docker_rails_base
 ###
-RUN mkdir ~/.rbenv
+ADD ./install_scripts/install_ruby.sh install_ruby.sh
+RUN sh ./install_ruby.sh
 
-# setup rbenv
-RUN git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
-ENV PATH=$HOME/.rbenv/bin:$PATH
-ENV RBENV_DIR=$HOME/.rbenv/bin
-ENV RBENV_ROOT=$HOME/.rbenv
-RUN eval "$(rbenv init -)"
-
-# setup ruby-build
-RUN git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
-
-# set ruby
-RUN rbenv install --list
-RUN rbenv install -v 1.9.3p448
-RUN rbenv rehash
-RUN rbenv versions
-RUN rbenv global 1.9.3p448
+###
+# setup node
+# https://github.com/yss44/docker_rails_base
+###
+ADD ./install_scripts/install_node.sh install_node.sh
+RUN sh ./install_node.sh
